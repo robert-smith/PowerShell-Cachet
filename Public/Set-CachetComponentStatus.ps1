@@ -34,7 +34,7 @@
     if ($component) {
         $statId = Get-CachetStatusId -StatusName $Status
         $splat = @{
-            'Uri' = 'http://localhost/api/v1/components/{0}' -f $component.id;
+            'Uri' = 'http://{0}/api/v1/components/{1}' -f $CachetServer, $component.id;
             'Method' = 'Put';
             'Body' = '{{"status":{0}}}' -f $statId;
             'Headers' = @{
