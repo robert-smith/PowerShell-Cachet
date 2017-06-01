@@ -30,7 +30,7 @@
         [string]$APIToken
     )
     
-    $component = (Get-CachetInfo -CachetServer $CachetServer -Info components).Where{$_.name -eq $ComponentName}
+    $component = Get-CachetInfo -CachetServer $CachetServer -Info components -APIToken $APIToken | Where-Object -FilterScript {$_.name -eq $ComponentName}
     if ($component) {
         $statId = Get-CachetStatusId -StatusName $Status
         $splat = @{
