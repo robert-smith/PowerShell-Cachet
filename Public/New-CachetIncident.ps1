@@ -38,7 +38,7 @@
      Set-CachetComponentStatus -CachetServer Cachet01 -ComponentName Internet -Status MajorOutage -APIToken FmzZg9GGQoanGnBbuyNT
     #>
     param (
-        [string]$CachetServer,
+        [string]$Server,
         [string]$Name,
         [string]$Message,
         [ValidateSet('Scheduled','Investigating','Identified','Watching','Fixed')]
@@ -53,33 +53,31 @@
         [string]$APIToken
     )
     
-    $component = Get-CachetInfo -CachetServer $CachetServer -Info components -APIToken $APIToken | Where-Object -FilterScript {$_.Name -eq $ComponentName}
+    $component = Get-CachetInfo -CachetServer $Server -Info components -APIToken $APIToken | Where-Object -FilterScript {$_.Name -eq $ComponentName}
 
     if ($component) {
 
         $iStatId = Get-CachetStatusId -StatusName $Status
         $cStatId = Get-CachetStatusId -StatusName $ComponentStatus
 
-        $json = @{
+        $Body = @{
             name = $Name;
             message = $Message;
             status = $iStatId;
             visible = $Visible;
             component_id = $component.id;
             component_status = $cStatId
-            } | ConvertTo-Json
+            }
 
         $splat = @{
-            'Body' = $json;
+            'Server' = $Server
+            'Resource' = 'Incidents'
+            'Body' = $Body;
             'Method' = 'Post';
-            'Uri' = 'http://{0}/api/v1/incidents' -f $CachetServer
-            'Headers' = @{
-                'X-Cachet-Token'=$APIToken;
-                'Content-Type'='application/json'
-            }
+            'ApiToken' = $APIToken
         }
 
-        Invoke-WebRequest @splat
+        Invoke-CachetRequest @splat
     }
 
     else {
