@@ -40,22 +40,26 @@ function Invoke-CachetRequest {
     begin {
         # Bind the parameter to a friendly variable
         $Resource = $PsBoundParameters[$ParameterName]
+        <#
         if (-not $ID) {
-            Write-Verbose 'Removing ID' -Verbose
+            Write-Verbose 'Removing ID'
             Set-Variable -Name ID -Value $null -Force
         }
+        #>
     }
 
     process {
-        $json = ConvertTo-Json -InputObject $Body
         $splat = @{
-            'Body' = $json
             'Method' = $Method
             'Uri' = $Settings.URIs.$Resource -f $Server, $ID
             'Headers' = @{
                 'X-Cachet-Token'=$ApiToken
                 'Content-Type'='application/json'
             }
+        }
+        if ($Method -ne 'GET') {
+            $json = ConvertTo-Json -InputObject $Body
+            $splat.Body = $json
         }
         $result = Invoke-RestMethod @splat
 
